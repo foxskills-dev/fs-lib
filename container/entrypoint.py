@@ -24,7 +24,7 @@ class ResultCollector:
 
 def run_pytest_and_collect():
     collector = ResultCollector()
-    pytest.main(["tests.py", "-q"], plugins=[collector])
+    pytest.main(["tests.py", "-q", "--tb=short"], plugins=[collector])
     return collector.results
 
 print(sys.argv)
@@ -37,9 +37,14 @@ secret = sys.argv[5]
 subprocess.run(["git", "clone", user_challenge_repo, "/runner/app"], check=True)
 
 if startup_command != "None":
-    bg_process = subprocess.Popen(startup_command, shell=True, preexec_fn=os.setsid, env={**os.environ, "SECRET": ""}, cwd="/runner/app")
-    time.sleep(5)
+    print("Running startup command...")
+    bg_process = subprocess.Popen(startup_command, shell=True, preexec_fn=os.setsid, cwd="/runner/app")
+    print("Sleep...")
+    time.sleep(10)
+else:
+    print("Skipping startup command...")
 
+print("Running pytest...")
 result = run_pytest_and_collect()
 
 os.system("ls -l **")
